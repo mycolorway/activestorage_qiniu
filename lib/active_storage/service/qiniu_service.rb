@@ -42,7 +42,8 @@ module ActiveStorage
             nil,
             bucket: bucket
           )
-          [code, result, response_headers]
+
+          result
         rescue
           raise ActiveStorage::IntegrityError
         end
