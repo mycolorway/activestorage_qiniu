@@ -1,8 +1,6 @@
 # ActivestorageQiniu
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/activestorage_qiniu`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Wraps the [Qiniu](https://www.qiniu.com/) Storage Service as an Active Storage service
 
 ## Installation
 
