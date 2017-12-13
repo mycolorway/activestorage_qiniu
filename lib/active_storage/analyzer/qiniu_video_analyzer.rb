@@ -1,5 +1,10 @@
 module ActiveStorage
-  # Extracts width and height in pixels from an image blob.
+  # Extracts the following from a video blob:
+  #
+  # * Width (pixels)
+  # * Height (pixels)
+  # * Duration (seconds)
+  # * Aspect ratio
   #
   # Example:
   #
