@@ -20,8 +20,6 @@ Or install it yourself as:
 
 ## Usage
 
-### Config qiniu storage service
-
 you can set-up qiniu storage service through the generated <tt>config/storage.yml</tt> file.
 ```yaml
   qiniu:
@@ -38,7 +36,7 @@ Then, in your application's configuration, you can specify the service to use li
 config.active_storage.service = :qiniu
 ```
 
-### Config qiniu image/video analyzer to extract blob metadata
+### Setup qiniu as image/video analyzer to extract blob metadata
 
 ```
 config.active_storage.analyzers = [ ActiveStorage::Analyzer::QiniuImageAnalyzer, ActiveStorage::Analyzer::QiniuVideoAnalyzer ]
