@@ -7,10 +7,10 @@ module ActiveStorage
   #
   #   qiniu:
   #     service: Qiniu
-  #     access_key:: <%= ENV['QINIU_ACCESS_KEY'] %>
-  #     secret_key:: <%= ENV['QINIU_SECRET_KEY'] %>
-  #     bucket:: <%= ENV['QINIU_BUCKET'] %>
-  #     domain:: <%= ENV['QINIUDOMAIN'] %>
+  #     access_key: <%= ENV['QINIU_ACCESS_KEY'] %>
+  #     secret_key: <%= ENV['QINIU_SECRET_KEY'] %>
+  #     bucket: <%= ENV['QINIU_BUCKET'] %>
+  #     domain: <%= ENV['QINIUDOMAIN'] %>
   #
   #  more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
   #
@@ -23,12 +23,14 @@ module ActiveStorage
   class Service::QiniuService < Service
     attr_reader :bucket, :domain, :upload_options
 
-    def initialize(access_key:, secret_key:, bucket:, domain:, **upload_options)
+    def initialize(access_key:, secret_key:, bucket:, domain:, **options)
       @bucket = bucket
       @domain = domain
-      @upload_options = upload_options
       Qiniu.establish_connection! access_key: access_key,
-                                  secret_key: secret_key
+                                  secret_key: secret_key,
+                                  **options
+
+      @upload_options = options
     end
 
     def upload(key, io, checksum: nil)
@@ -67,15 +69,16 @@ module ActiveStorage
       end
     end
 
-    def url(key, expires_in:, filename:, disposition:, content_type:, fop: nil)
+    def url(key, **options)
       instrument :url, key: key do |payload|
-        params = []
-        params << fop if fop.present?                                                                   # 预处理附件
-        params << "attname=#{URI.escape(filename)}" if filename.present? || disposition == 'attachment' # 下载附件
-        fop = params.join("&")
-        generated_url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: expires_in)
-        payload[:url] = generated_url
-        generated_url
+        fop = if options[:fop].present?        # 内容预处理
+                options[:fop]
+              elsif options[:attname].present? # 下载附件
+                "attname=#{URI.escape(options[:attname])}"
+              end
+        url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: options[:expires_in])
+        payload[:url] = url
+        url
       end
     end
 
@@ -83,10 +86,7 @@ module ActiveStorage
       instrument :url, key: key do |payload|
         url = Qiniu::Config.up_host(bucket)
         payload[:url] = url
-        {
-          url: url,
-          token: generate_uptoken(key, expires_in)
-        }
+        { url: url, token: generate_uptoken(key, expires_in) }
       end
     end
 

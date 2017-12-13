@@ -20,14 +20,16 @@ Or install it yourself as:
 
 ## Usage
 
+### Config qiniu storage service
+
 you can set-up qiniu storage service through the generated <tt>config/storage.yml</tt> file.
 ```yaml
   qiniu:
     service: Qiniu
-    access_key:: <%= ENV['QINIU_ACCESS_KEY'] %>
-    secret_key:: <%= ENV['QINIU_SECRET_KEY'] %>
-    bucket:: <%= ENV['QINIU_BUCKET'] %>
-    domain:: <%= ENV['QINIUDOMAIN'] %>
+    access_key: <%= ENV['QINIU_ACCESS_KEY'] %>
+    secret_key: <%= ENV['QINIU_SECRET_KEY'] %>
+    bucket: <%= ENV['QINIU_BUCKET'] %>
+    domain: <%= ENV['QINIUDOMAIN'] %>
 ```
 more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
 
@@ -35,6 +37,13 @@ Then, in your application's configuration, you can specify the service to use li
 ```ruby
 config.active_storage.service = :qiniu
 ```
+
+### Config qiniu image/video analyzer to extract blob metadata
+
+```
+config.active_storage.analyzers = [ ActiveStorage::Analyzer::QiniuImageAnalyzer, ActiveStorage::Analyzer::QiniuVideoAnalyzer ]
+```
+
 
 ## License
 
