@@ -12,7 +12,7 @@ module ActiveStorage
   #     bucket:: <%= ENV['QINIU_BUCKET'] %>
   #     domain:: <%= ENV['QINIUDOMAIN'] %>
   #
-  #  more options to visit here. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
+  #  more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
   #
   # Then, in your application's configuration, you can specify the service to
   # use like this:
@@ -81,7 +81,7 @@ module ActiveStorage
 
     def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
       instrument :url, key: key do |payload|
-        url = Qiniu::Config.up_host('zhiren')
+        url = Qiniu::Config.up_host(bucket)
         payload[:url] = url
         {
           url: url,
