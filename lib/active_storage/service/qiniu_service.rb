@@ -1,6 +1,25 @@
 module ActiveStorage
   # Wraps the Qiniu Storage Service as an Active Storage service.
   # See ActiveStorage::Service for the generic API documentation that applies to all services.
+  #
+  #  you can set-up qiniu storage service through the generated <tt>config/storage.yml</tt> file.
+  #  For example:
+  #
+  #   qiniu:
+  #     service: Qiniu
+  #     access_key:: <%= ENV['QINIU_ACCESS_KEY'] %>
+  #     secret_key:: <%= ENV['QINIU_SECRET_KEY'] %>
+  #     bucket:: <%= ENV['QINIU_BUCKET'] %>
+  #     domain:: <%= ENV['QINIUDOMAIN'] %>
+  #
+  #  more options to visit here. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
+  #
+  # Then, in your application's configuration, you can specify the service to
+  # use like this:
+  #
+  #   config.active_storage.service = :qiniu
+  #
+  #
   class Service::QiniuService < Service
     attr_reader :bucket, :domain, :upload_options
 
