@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Mycolorway', "seandong"]
   spec.email         = ["sindon@gmail.com"]
 
-  spec.summary       = %q{Qiniu cloud service for Active Storage}
-  spec.description   = %q{Qiniu cloud service for Active Storage}
-  spec.homepage      = "https://zhiren.com"
+  spec.summary       = %q{Wraps the Qiniu Storage Service as an Active Storage service}
+  spec.description   = %q{Wraps the Qiniu Storage Service as an Active Storage service. https://www.qiniu.com}
+  spec.homepage      = "https://github.com/mycolorway/activestorage_qiniu"
   spec.license       = "MIT"
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
