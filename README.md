@@ -36,7 +36,7 @@ Then, in your application's configuration, you can specify the service to use li
 config.active_storage.service = :qiniu
 ```
 
-### Apply qiniu image/video analyzers
+Finally, config qiniu image and video analyzers.
 
 ```
 config.active_storage.analyzers = [ ActiveStorage::Analyzer::QiniuImageAnalyzer, ActiveStorage::Analyzer::QiniuVideoAnalyzer ]
