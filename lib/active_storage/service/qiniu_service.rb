@@ -41,6 +41,7 @@ module ActiveStorage
           code, result, response_headers = Qiniu::Storage.upload_with_token_2(
             generate_uptoken(key),
             io,
+            key,
             nil,
             bucket: bucket
           )
