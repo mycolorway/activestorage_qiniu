@@ -46,7 +46,8 @@ module ActiveStorage
           )
 
           result
-        rescue
+        rescue => e
+          puts e.backtrace
           raise ActiveStorage::IntegrityError
         end
       end
