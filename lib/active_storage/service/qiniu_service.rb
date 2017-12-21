@@ -26,7 +26,7 @@ module ActiveStorage
     def initialize(access_key:, secret_key:, bucket:, domain:, **options)
       @bucket = bucket
       @domain = domain
-      protocol = :ssl if options[:protocol] == 'ssl'
+      protocol = (options.delete(:protocol) || 'https').to_sym
       Qiniu.establish_connection! access_key: access_key,
                                   secret_key: secret_key,
                                   protocol: protocol,
