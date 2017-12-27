@@ -89,14 +89,14 @@ module ActiveStorage
 
     def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
       instrument :url, key: key do |payload|
-        url = Qiniu::Config.up_host(bucket) + "?token=#{generate_uptoken(key)}"
+        url = Qiniu::Config.up_host(bucket) + "?token=#{generate_uptoken(key, expires_in)}"
         payload[:url] = url
         url
       end
     end
 
     def headers_for_direct_upload(key, content_type:, checksum:, **)
-      { "Content-Type" => content_type, "Content-MD5" => checksum, "x-token" => generate_uptoken(key) }
+      { "Content-Type" => content_type, "Content-MD5" => checksum }# , "x-token" => generate_uptoken(key)
     end
 
     private
