@@ -74,6 +74,22 @@ module ActiveStorage
       end
     end
 
+    def download(key)
+      if block_given?
+        instrument :streaming_download, key: key do
+          open(url(key, attname: 'download')) do |file|
+            while data = file.read(64.kilobytes)
+              yield data
+            end
+          end
+        end
+      else
+        instrument :download, key: key do
+          open(url(key, attname: 'download')).read
+        end
+      end
+    end
+
     def url(key, **options)
       instrument :url, key: key do |payload|
         fop = if options[:fop].present?        # 内容预处理
