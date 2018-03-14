@@ -38,7 +38,8 @@ module ActiveStorage
     def upload(key, io, checksum: nil)
       instrument :upload, key: key, checksum: checksum do
         begin
-          code, result, response_headers = Qiniu::Storage.upload_with_token_2(
+          upload_method = io.respond_to?(:read) ? :upload_buffer_with_token : :upload_with_token_2
+          code, result, response_headers = Qiniu::Storage.send(upload_method,
             generate_uptoken(key),
             io,
             key,
