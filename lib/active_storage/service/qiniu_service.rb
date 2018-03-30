@@ -11,6 +11,7 @@ module ActiveStorage
   #     secret_key: <%= ENV['QINIU_SECRET_KEY'] %>
   #     bucket: <%= ENV['QINIU_BUCKET'] %>
   #     domain: <%= ENV['QINIUDOMAIN'] %>
+  #     protocol: <%= ENV.fetch("QINIU_PROTOCOL") { "http" } %>
   #
   #  more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
   #
