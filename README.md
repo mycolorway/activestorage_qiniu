@@ -27,7 +27,7 @@ you can set-up qiniu storage service through the generated <tt>config/storage.ym
     access_key: <%= ENV['QINIU_ACCESS_KEY'] %>
     secret_key: <%= ENV['QINIU_SECRET_KEY'] %>
     bucket: <%= ENV['QINIU_BUCKET'] %>
-    domain: <%= ENV['QINIUDOMAIN'] %>
+    domain: <%= ENV['QINIU_DOMAIN'] %>
     protocol: <%= ENV.fetch("QINIU_PROTOCOL") { "http" } %>
 ```
 more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
