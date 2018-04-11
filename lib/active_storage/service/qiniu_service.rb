@@ -1,3 +1,5 @@
+require 'open-uri'
+
 module ActiveStorage
   # Wraps the Qiniu Storage Service as an Active Storage service.
   # See ActiveStorage::Service for the generic API documentation that applies to all services.
