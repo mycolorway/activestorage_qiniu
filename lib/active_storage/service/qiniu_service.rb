@@ -78,7 +78,7 @@ module ActiveStorage
     def download(key)
       if block_given?
         instrument :streaming_download, key: key do
-          open(url(key, attname: 'download')) do |file|
+          open(url(key, disposition: :attachment)) do |file|
             while data = file.read(64.kilobytes)
               yield data
             end
@@ -86,14 +86,14 @@ module ActiveStorage
         end
       else
         instrument :download, key: key do
-          open(url(key, attname: 'download')).read
+          open(url(key, disposition: :attachment)).read
         end
       end
     end
 
     def download_chunk(key, range)
       instrument :download_chunk, key: key, range: range do
-        uri = URI(url(key, expires_in: 30.seconds, attname: 'download'))
+        uri = URI(url(key, expires_in: 30.seconds, disposition: :attachment))
         Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |client|
           client.get(uri, 'Range' => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
         end
@@ -104,8 +104,8 @@ module ActiveStorage
       instrument :url, key: key do |payload|
         fop = if options[:fop].present?        # 内容预处理
                 options[:fop]
-              elsif options[:attname].present? # 下载附件
-                "attname=#{URI.escape(options[:attname])}"
+              elsif options[:disposition] == :attachment # 下载附件
+                "attname=#{URI.escape(options[:filename] || key)}"
               end
         url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: options[:expires_in], schema: protocol)
         payload[:url] = url
