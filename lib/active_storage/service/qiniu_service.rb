@@ -104,7 +104,7 @@ module ActiveStorage
       instrument :url, key: key do |payload|
         fop = if options[:fop].present?        # 内容预处理
                 options[:fop]
-              elsif options[:disposition] == :attachment # 下载附件
+              elsif options[:disposition].to_s == 'attachment' # 下载附件
                 "attname=#{URI.escape(options[:filename] || key)}"
               end
         url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: options[:expires_in], schema: protocol)
