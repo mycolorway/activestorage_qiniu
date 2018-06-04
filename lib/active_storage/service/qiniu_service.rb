@@ -108,7 +108,8 @@ module ActiveStorage
                 attname = URI.escape "#{options[:filename] || key}"
                 "attname=#{attname}"
               end
-        url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: options[:expires_in], schema: protocol)
+        expires_in = options[:expires_in] || url_expires_in
+        url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: expires_in, schema: protocol)
         payload[:url] = url
         url
       end
