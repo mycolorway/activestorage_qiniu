@@ -28,7 +28,7 @@ module ActiveStorage
       video_stream['width']
     end
 
-    def hegiht
+    def height
       video_stream['height']
     end
 
