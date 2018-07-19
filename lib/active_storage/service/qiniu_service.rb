@@ -10,7 +10,8 @@ module ActiveStorage
   #     access_key: <%= ENV['QINIU_ACCESS_KEY'] %>
   #     secret_key: <%= ENV['QINIU_SECRET_KEY'] %>
   #     bucket: <%= ENV['QINIU_BUCKET'] %>
-  #     domain: <%= ENV['QINIUDOMAIN'] %>
+  #     domain: <%= ENV['QINIU_DOMAIN'] %>
+  #     protocol: <%= ENV.fetch("QINIU_PROTOCOL") { "http" } %>
   #
   #  more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
   #
@@ -29,7 +30,7 @@ module ActiveStorage
       @protocol = (options.delete(:protocol) || 'https').to_sym
       Qiniu.establish_connection! access_key: access_key,
                                   secret_key: secret_key,
-                                  protocol: protocol,
+                                  protocol: @protocol,
                                   **options
 
       @upload_options = options
@@ -108,8 +109,9 @@ module ActiveStorage
                 attname = URI.escape "#{options[:filename] || key}"
                 "attname=#{attname}"
               end
+
         expires_in = options[:expires_in] || url_expires_in
-        url = Qiniu::Auth.authorize_download_url_2(domain, key, fop: fop, expires_in: expires_in, schema: protocol)
+        url = Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop, expires_in: expires_in)
         payload[:url] = url
         url
       end
