@@ -34,14 +34,18 @@ you can set-up qiniu storage service through the generated <tt>config/storage.ym
 more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
 
 Then, in your application's configuration, you can specify the service to use like this:
+
 ```ruby
 config.active_storage.service = :qiniu
 ```
 
 Finally, config qiniu image and video analyzers.
 
-```
-config.active_storage.analyzers = [ ActiveStorage::Analyzer::QiniuImageAnalyzer, ActiveStorage::Analyzer::QiniuVideoAnalyzer ]
+```ruby
+config.active_storage.analyzers = [
+  ActiveStorage::Analyzer::QiniuImageAnalyzer,
+  ActiveStorage::Analyzer::QiniuVideoAnalyzer
+]
 ```
 
 
