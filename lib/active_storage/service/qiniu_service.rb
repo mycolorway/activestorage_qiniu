@@ -24,12 +24,14 @@ module ActiveStorage
   #
   #
   class Service::QiniuService < Service
-    attr_reader :bucket, :domain, :upload_options, :protocol
+    attr_reader :bucket, :domain, :upload_options, :protocol, :bucket_private
 
     def initialize(access_key:, secret_key:, bucket:, domain:, **options)
       @bucket = bucket
       @domain = domain
       @protocol = (options.delete(:protocol) || 'https').to_sym
+      bucket_private = options.delete(:bucket_private)
+      @bucket_private = bucket_private.nil? ? false : !!bucket_private
       Qiniu.establish_connection! access_key: access_key,
                                   secret_key: secret_key,
                                   protocol: @protocol,
@@ -112,8 +114,14 @@ module ActiveStorage
                 "attname=#{attname}"
               end
 
-        expires_in = options[:expires_in] || url_expires_in
-        url = Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop, expires_in: expires_in)
+        url = if bucket_private
+                expires_in = options[:expires_in] || url_expires_in
+                Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop, expires_in: expires_in)
+              else
+                url_encoded_key = CGI::escape(key)
+                "#{protocol}://#{domain}/#{url_encoded_key}"
+              end
+
         payload[:url] = url
         url
       end
