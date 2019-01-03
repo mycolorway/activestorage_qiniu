@@ -40,7 +40,7 @@ module ActiveStorage
       @upload_options = options
     end
 
-    def upload(key, io, checksum: nil)
+    def upload(key, io, checksum: nil, **)
       instrument :upload, key: key, checksum: checksum do
         begin
           upload_method = io.respond_to?(:read) ? :upload_buffer_with_token : :upload_with_token_2
