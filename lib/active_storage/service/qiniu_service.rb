@@ -119,7 +119,7 @@ module ActiveStorage
                 Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop, expires_in: expires_in)
               else
                 url_encoded_key = CGI::escape(key)
-                "#{protocol}://#{domain}/#{url_encoded_key}"
+                "#{protocol}://#{domain}/#{url_encoded_key}?#{fop}"
               end
 
         payload[:url] = url
