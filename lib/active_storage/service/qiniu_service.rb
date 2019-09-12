@@ -24,6 +24,7 @@ module ActiveStorage
   #
   #
   class Service::QiniuService < Service
+    BLOCK_SIZE = 4 * 1024 * 1024
     attr_reader :bucket, :domain, :upload_options, :protocol, :bucket_private
 
     def initialize(access_key:, secret_key:, bucket:, domain:, **options)
@@ -42,21 +43,27 @@ module ActiveStorage
 
     def upload(key, io, checksum: nil, content_type: nil, **)
       instrument :upload, key: key, checksum: checksum do
-        begin
-          upload_method = io.respond_to?(:read) ? :upload_buffer_with_token : :upload_with_token_2
-          code, result, response_headers = Qiniu::Storage.send(upload_method,
-            generate_uptoken(key),
-            io,
-            key,
-            nil,
-            bucket: bucket
-          )
+        io = File.open(io) unless io.respond_to?(:read)
 
-          result
-        rescue => e
-          puts e.backtrace
-          raise ActiveStorage::IntegrityError
+        ctx_list = []
+        file_size = 0
+        while (blk = io.read(BLOCK_SIZE))
+          ctx = upload_blk(key, blk)
+          file_size += blk.size
+          ctx_list.push(ctx)
         end
+
+        api_call(
+          key,
+          '/' + [
+            'mkfile',
+            file_size,
+            'key',
+            encode(key),
+            *(content_type ? ['mimeType', encode(content_type)] : [])
+          ].join('/'),
+          ctx_list.join(',')
+        )
       end
     end
 
@@ -160,6 +167,32 @@ module ActiveStorage
       end
 
       Qiniu::Auth.generate_uptoken(put_policy)
+    end
+
+    def upload_blk(key, blk)
+      result =
+        with_retries(max_retries: 3) do
+          api_call(key, "/mkblk/#{blk.size}", blk)
+        end
+      result.fetch('ctx')
+    end
+
+    def api_call(key, path, body)
+      url = Qiniu::Config.up_host(bucket) + path
+
+      response = RestClient.post(
+        url,
+        body,
+        'Authorization' => "UpToken #{generate_uptoken(key)}"
+      )
+
+      result = JSON.parse(response.body)
+
+      result
+    end
+
+    def encode(value)
+      Base64.encode64(value).strip.gsub(/\+/, '-').gsub(%r{/}, '_')
     end
   end
 end
