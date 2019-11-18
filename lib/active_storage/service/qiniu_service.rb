@@ -1,4 +1,5 @@
 require 'open-uri'
+require 'retries'
 
 module ActiveStorage
   # Wraps the Qiniu Storage Service as an Active Storage service.
