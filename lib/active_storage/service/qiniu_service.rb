@@ -15,6 +15,7 @@ module ActiveStorage
   #     bucket: <%= ENV['QINIU_BUCKET'] %>
   #     domain: <%= ENV['QINIU_DOMAIN'] %>
   #     protocol: <%= ENV.fetch("QINIU_PROTOCOL") { "http" } %>
+  #     public: <%= ENV['QINIU_BUCKET_IS_PUBLIC'] %>
   #
   #  more options. https://github.com/qiniu/ruby-sdk/blob/master/lib/qiniu/auth.rb#L49
   #
@@ -26,18 +27,19 @@ module ActiveStorage
   #
   class Service::QiniuService < Service
     BLOCK_SIZE = 4 * 1024 * 1024
-    attr_reader :bucket, :domain, :upload_options, :protocol, :bucket_private
+    attr_reader :bucket, :domain, :upload_options, :protocol
 
-    def initialize(access_key:, secret_key:, bucket:, domain:, **options)
+    def initialize(access_key:, secret_key:, bucket:, domain:, public: false, protocol: 'https', **options)
       @bucket = bucket
+      @public = public
       @domain = domain
-      @protocol = (options.delete(:protocol) || 'https').to_sym
-      bucket_private = options.delete(:bucket_private)
-      @bucket_private = bucket_private.nil? ? false : !!bucket_private
-      Qiniu.establish_connection! access_key: access_key,
-                                  secret_key: secret_key,
-                                  protocol: @protocol,
-                                  **options
+      @protocol = protocol
+      Qiniu.establish_connection!(
+        access_key: access_key,
+        secret_key: secret_key,
+        protocol: @protocol,
+        **options
+      )
 
       @upload_options = options
     end
@@ -113,28 +115,6 @@ module ActiveStorage
       end
     end
 
-    def url(key, **options)
-      instrument :url, key: key do |payload|
-        fop = if options[:fop].present?        # 内容预处理
-                options[:fop]
-              elsif options[:disposition].to_s == 'attachment' # 下载附件
-                attname = URI.escape "#{options[:filename] || key}"
-                "attname=#{attname}"
-              end
-
-        url = if bucket_private
-                expires_in = options[:expires_in] || url_expires_in
-                Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop, expires_in: expires_in)
-              else
-                url_encoded_key = CGI::escape(key)
-                "#{protocol}://#{domain}/#{url_encoded_key}?#{fop}"
-              end
-
-        payload[:url] = url
-        url
-      end
-    end
-
     def url_for_direct_upload(key, expires_in:, content_type:, content_length:, checksum:)
       instrument :url, key: key do |payload|
         url = Qiniu::Config.up_host(bucket)
@@ -149,6 +129,16 @@ module ActiveStorage
 
     private
 
+    def private_url(key, expires_in:, **options)
+      Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop_for(options), expires_in: expires_in)
+    end
+
+    def public_url(key, **options)
+      fop = fop_for(options)
+      fop = "?#{fop}" if fop.present?
+      "#{protocol}://#{domain}/#{CGI::escape(key)}#{fop}"
+    end
+
     def items_for(prefix='')
       list_policy = Qiniu::Storage::ListPolicy.new(
         bucket,   # 存储空间
@@ -158,6 +148,15 @@ module ActiveStorage
       )
       code, result, response_headers, s, d = Qiniu::Storage.list(list_policy)
       result['items']
+    end
+
+     def fop_for(options)
+      if options[:fop].present?        # 内容预处理
+        options[:fop]
+      elsif options[:disposition].to_s == 'attachment' # 下载附件
+        attname = URI.escape "#{options[:filename] || key}"
+        "attname=#{attname}"
+      end
     end
 
     def generate_uptoken(key=nil, expires_in=nil)
