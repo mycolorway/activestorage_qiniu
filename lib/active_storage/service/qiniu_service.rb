@@ -90,6 +90,21 @@ module ActiveStorage
       end
     end
 
+    def url(key, **options)
+      instrument :url, key: key do |payload|
+        generated_url =
+          if public?
+            public_url(key, **options)
+          else
+            private_url(key, **options)
+          end
+
+        payload[:url] = generated_url
+
+        generated_url
+      end
+    end
+
     def download(key)
       if block_given?
         instrument :streaming_download, key: key do
@@ -125,6 +140,10 @@ module ActiveStorage
 
     def headers_for_direct_upload(key, content_type:, checksum:, **)
       { "Content-Type" => content_type, "Content-MD5" => checksum, "x-token" => generate_uptoken(key) }
+    end
+
+    def public?
+      @public
     end
 
     private
