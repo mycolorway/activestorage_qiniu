@@ -99,7 +99,7 @@ module ActiveStorage
     def download_chunk(key, range)
       instrument :download_chunk, key: key, range: range do
         uri = URI(url(key, disposition: :attachment))
-        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |client|
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https", open_timeout: 5, read_timeout: 5) do |client|
           client.get(uri, 'Range' => "bytes=#{range.begin}-#{range.exclude_end? ? range.end - 1 : range.end}").body
         end
       end
