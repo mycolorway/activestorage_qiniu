@@ -91,7 +91,7 @@ module ActiveStorage
     def download(key)
       if block_given?
         instrument :streaming_download, key: key do
-          open(url(key, disposition: :attachment)) do |file|
+          URI.open(url(key, disposition: :attachment)) do |file|
             while data = file.read(64.kilobytes)
               yield data
             end
@@ -99,7 +99,7 @@ module ActiveStorage
         end
       else
         instrument :download, key: key do
-          open(url(key, disposition: :attachment)).read
+          URI.open(url(key, disposition: :attachment)).read
         end
       end
     end
