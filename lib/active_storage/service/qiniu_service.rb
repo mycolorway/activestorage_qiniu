@@ -193,7 +193,7 @@ module ActiveStorage
     end
 
     def encode(value)
-      Base64.encode64(value).strip.gsub(/\+/, '-').gsub(%r{/}, '_')
+      Base64.encode64(value).strip.gsub(/\+/, '-').gsub(%r{/}, '_').gsub(/\r?\n/, '')
     end
   end
 end
