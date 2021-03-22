@@ -60,8 +60,8 @@ module ActiveStorage
             'mkfile',
             file_size,
             'key',
-            encode(key),
-            *(content_type ? ['mimeType', encode(content_type)] : [])
+            Base64.urlsafe_encode64(key),
+            *(content_type ? ['mimeType', Base64.urlsafe_encode64(content_type)] : [])
           ].join('/'),
           ctx_list.join(',')
         )
@@ -190,10 +190,6 @@ module ActiveStorage
       result = JSON.parse(response.body)
 
       result
-    end
-
-    def encode(value)
-      Base64.encode64(value).strip.gsub(/\+/, '-').gsub(%r{/}, '_')
     end
   end
 end
