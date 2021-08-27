@@ -34,11 +34,12 @@ module ActiveStorage
       @protocol = (options.delete(:protocol) || 'https').to_sym
       bucket_private = options.delete(:bucket_private)
       @bucket_private = bucket_private.nil? ? false : !!bucket_private
-      Qiniu.establish_connection! access_key: access_key,
-                                  secret_key: secret_key,
-                                  protocol: @protocol,
-                                  **options
-
+      Qiniu.establish_connection!(
+        access_key: access_key,
+        secret_key: secret_key,
+        protocol: @protocol,
+        **options
+      )
       @upload_options = options
     end
 
@@ -123,7 +124,10 @@ module ActiveStorage
               end
 
         url = if bucket_private
-                expires_in = options[:expires_in] || url_expires_in
+                expires_in = options[:expires_in] ||
+                  (respond_to?(:url_expires_in) ? url_expires_in: nil) ||
+                  Rails.application.config.active_storage.service_urls_expire_in ||
+                  3600
                 Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop, expires_in: expires_in)
               else
                 url_encoded_key = CGI::escape(key)
@@ -156,7 +160,7 @@ module ActiveStorage
         prefix,   # 指定前缀
         ''        # 指定目录分隔符
       )
-      code, result, response_headers, s, d = Qiniu::Storage.list(list_policy)
+      _, result, _, _, _ = Qiniu::Storage.list(list_policy)
       result['items']
     end
 
