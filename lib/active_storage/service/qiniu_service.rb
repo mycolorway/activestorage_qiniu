@@ -148,7 +148,8 @@ module ActiveStorage
 
     private
 
-    def private_url(key, expires_in:, **options)
+    def private_url(key, **options)
+      expires_in = options[:expires_in] || ActiveStorage.service_urls_expire_in
       Qiniu::Auth.authorize_download_url_2(domain, key, schema: protocol, fop: fop_for(options), expires_in: expires_in)
     end
 
