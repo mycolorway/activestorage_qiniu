@@ -174,7 +174,7 @@ module ActiveStorage
       if options[:fop].present?        # 内容预处理
         options[:fop]
       elsif options[:disposition].to_s == 'attachment' # 下载附件
-        attname = URI.escape "#{options[:filename] || key}"
+        attname = URI.escape "#{options[:filename] || 'file'}"
         "attname=#{attname}"
       end
     end
