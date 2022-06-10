@@ -183,7 +183,7 @@ module ActiveStorage
     end
 
     def api_call(key, path, body)
-      url = Qiniu::Config.up_host(bucket) + path
+      url = Addressable::URI.encode(Qiniu::Config.up_host(bucket) + path)
 
       response = RestClient.post(
         url,
