@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_runtime_dependency 'rails', '>= 5.1.6.2'
 
+  spec.add_dependency 'addressable', '~> 2.8'
   spec.add_dependency 'qiniu', '~> 6.9'
   spec.add_dependency 'retries', '~> 0.0.5'
 end
